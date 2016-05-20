@@ -1,6 +1,7 @@
 var mongoose = require("mongoose");
 var bcrypt = require("bcrypt");
 var SALT_WORK_FACTOR = 10;
+var ObjectId = mongoose.Schema.Types.ObjectId;
 
 var UserSchema = new mongoose.Schema({
 
@@ -9,6 +10,12 @@ var UserSchema = new mongoose.Schema({
     type: Number,
     unique: true,
   },
+  friends: [
+    {
+      type: ObjectId,
+      ref: 'User'
+    }
+  ],
   password:String,
   //0 nomal
   //>50 super admin
@@ -74,6 +81,7 @@ UserSchema.methods = {
 
   compare:function(password,cd){
     console.log(password);
+    console.log(this.password);
     bcrypt.compare(password,this.password,function(err,isMatch){
       if(err) return cd(err);
 

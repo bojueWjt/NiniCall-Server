@@ -1,22 +1,9 @@
 var User = require("../models/user");
 var Code = require('../models/code');
 var app = require("../../app.js");
-var _ = require('underscore');
-
-
-function signin(req,res){
-
-  res.render("signin",{
-    title:"登陆页面"
-  });
-};
-
-function signup(req,res){
-
-  res.render("signup",{
-    title:"注册页面"
-  });
-};
+var _ = require('lodash');
+var unit = require('../unit');
+var errCode = require('../common/erroCode');
 
 function userSignup(req,res){
 
@@ -31,10 +18,7 @@ function userSignup(req,res){
     }
 
     if (!code) {
-      res.send(JSON.stringify({
-        code: 1001,
-        errorMessage: '清先获取验证码',
-      }));
+      res.send(JSON.stringify(errCode.notCode));
     } else if (code.code == _user.code) {
 
       User.find({ phoneNum: _user.phoneNum}, function(err, user) {
@@ -43,10 +27,7 @@ function userSignup(req,res){
         }
 
         if (user.length != 0) {
-          res.send(JSON.stringify({
-            code: 1002,
-            errorMessage: '该手机已经被注册',
-          }));
+          res.send(JSON.stringify(errCode.notMatch));
         }
 
         var newUser = new User(_user);
@@ -69,10 +50,7 @@ function userSignup(req,res){
       });
 
     }else {
-      res.send(JSON.stringify({
-        code: 1003,
-        errorMessage: '验证码不正确',
-      }));
+      res.send(JSON.stringify(errCode.codeErr));
     }
 
   });
@@ -82,8 +60,10 @@ function userSignin(req,res){
 
   var user = req.body;
   console.log(user);
-  User.findOne({phoneNum:user.phoneNum},function(err,mUser){
-
+  User.findOne({phoneNum:user.phoneNum})
+    .populate("friends", "username")
+    .exec(function(err,mUser){
+    console.log("ninininiinni");
     if(err){
 
       console.log(err);
@@ -91,10 +71,7 @@ function userSignin(req,res){
 
     if(!mUser){
 
-      res.send(JSON.stringify({
-        code: 2001,
-        errorMessage: '账号或密码不正确',
-      }));
+      res.send(JSON.stringify(errCode.notMatch));
 
     }else{
       
@@ -116,10 +93,7 @@ function userSignin(req,res){
           console.log("the password is match");
         }else{
 
-          res.send(JSON.stringify({
-            code: 2001,
-            errorMessage: '账号或密码不正确',
-          }));
+          res.send(JSON.stringify(errCode.notMatch));
 
           console.log("the password is not match");
         }
@@ -128,88 +102,108 @@ function userSignin(req,res){
   });
 }
 
-function logout(req,res){
+function findOneUser(req, res) {
+  var id = req.params.phoneNum;
+  User.findOne({
+    phoneNum: id,
+  }, function(err, mUser) {
+    if (err) {
+      console.log(err);
+    }
+    
+    if (!mUser) {
+      console.log('用户不存在');
 
-  delete req.session.user;
-  app.publicMethod.deleteUser();
+    }
 
-  res.redirect("/");
+    res.send(JSON.stringify({
+      code: 0,
+      user: mUser,
+    }));
+  })
 }
 
-function signinRequired(req,res,next){
+function updateUser(req, res) {
+  var user = req.body;
+  User.findOne({
+    phoneNum: user.phoneNum,
+  }, function(err, mUser) {
+    if (err) {
+      console.log(err);
+    }
 
-  if(!req.session.user){
-    return res.redirect("/signin");
-  }
+    if (!mUser) {
+      console.log('用户不存在');
+      res.send(JSON.stringify(errCode.notFindUser))
+    } else {
 
-  next();
-};
+      const newUser = _.merge(mUser, user);
+      newUser.save(function(err, user) {
+        if (err) {
+          console.log(err);
+        } else {
 
-function adminRequired(req,res,next){
+          res.send(JSON.stringify({
+            code: 0,
+            user: user,
+          }));
+        }
+      })
+    }
+  })
+}
 
-  var role = req.session.user.role;
-  if(role <= 10 || !role){
 
-    return res.redirect("/");
-  }
-
-  next();
-};
-
-
-function sendCode(req, res, next) {
+function sendCode(req, res) {
   var phoneNum = req.params.phoneNum;
   const codeNum = parseInt(Math.random()*1000000);
   const code = {
     phoneNum,
     code: codeNum,
   };
-  console.log(req.params);
+  const content = '【NiniCall】您的验证码是' + codeNum + ',60秒内有效.若非本人操作请忽略此消息';
+  console.log(code);
+  unit.sendMessage(phoneNum, content, function() {
+    Code.findOne({ phoneNum: code.phoneNum }, function(err, myCode) {
 
-  Code.findOne({ phoneNum: code.phoneNum }, function(err, myCode) {
+      if (err) {
+        console.log(err)
+      }
 
-    if (err) {
-      console.log(err)
-    }
+      if (!myCode) {
+        const _code = new Code(code);
+        _code.save(function(err, code) {
+          if (err) {
+            console.log(err);
+          }
+          res.send(JSON.stringify({
+            code: 0,
+            data: code,
+          }));
+        });
+      } else {
+        const newCode = _.merge(myCode, code);
+        newCode.save(function(err, code) {
+          if (err) {
+            console.log(err);
+          }
+          res.send(JSON.stringify({
+            code: 0,
+            data: code,
+          }))
+        })
+      }
+    })
+  });
 
-    if (!myCode) {
-      const _code = new Code(code);
-      _code.save(function(err, code) {
-        if (err) {
-          console.log(err);
-        }
-        res.send(JSON.stringify({
-          code: 0,
-          data: code,
-        }));
-      });
-    } else {
-      const newCode = _.extend(myCode, code);
-      newCode.save(function(err, code) {
-        if (err) {
-          console.log(err);
-        }
-        res.send(JSON.stringify({
-          code: 0,
-          data: code,
-        }))
-      })
-    }
-  })
 }
-
-exports.signin = signin;
-
-exports.signup = signup;
 
 exports.userSignup = userSignup;
 
 exports.userSignin = userSignin;
 
-exports.logout = logout;
-
-exports.signinRequired = signinRequired;
-
-exports.adminRequired = adminRequired;
-
 exports.sendCode = sendCode;
+
+exports.findOneUser = findOneUser;
+
+exports.updateUser = updateUser;
