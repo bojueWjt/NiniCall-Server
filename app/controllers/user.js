@@ -1,6 +1,5 @@
 var User = require("../models/user");
 var Code = require('../models/code');
-var app = require("../../app.js");
 var _ = require('lodash');
 var unit = require('../unit');
 var errCode = require('../common/erroCode');
@@ -158,7 +157,7 @@ function sendCode(req, res) {
   var phoneNum = req.params.phoneNum;
   const codeNum = parseInt(Math.random()*1000000);
   const code = {
-    phoneNum,
+    phoneNum: phoneNum,
     code: codeNum,
   };
   const content = '【NiniCall】您的验证码是' + codeNum + ',60秒内有效.若非本人操作请忽略此消息';

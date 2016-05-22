@@ -35,6 +35,11 @@ const hasBeenFriend = {
   errorMessage: '这个用户已经您的好友',
 };
 
+const hasThisRequest = {
+  code: 3001,
+  errorMessage: '已经请求过一遍了',
+};
+
 exports.notMatch = notMatch;
 exports.notCode = notCode;
 exports.hadPhoneNum = hadPhoneNum;
@@ -42,3 +47,4 @@ exports.codeErr = codeErr;
 exports.notFindUser = notFindUser;
 exports.notFindCurrentUser = notFindCurrentUser;
 exports.hasBeenFriend = hasBeenFriend;
+exports.hasThisRequest = hasThisRequest;
