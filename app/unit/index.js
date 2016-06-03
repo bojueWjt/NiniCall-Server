@@ -29,5 +29,17 @@ const requestSendMessage = function(phoneNum, content, cb) {
   });
 };
 
+const removeArrChild = function (arr, child) {
+
+  const newArr = [];
+  arr.forEach(function(item, index) {
+    if (item !== child) {
+      newArr.push(item)
+    }
+  });
+
+  return newArr;
+};
 
 exports.sendMessage = requestSendMessage;
+exports.removeArrChild = removeArrChild;

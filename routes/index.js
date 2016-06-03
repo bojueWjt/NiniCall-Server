@@ -3,6 +3,8 @@ var router = express.Router();
 
 var user = require('../app/controllers/user');
 var friend = require('../app/controllers/friend');
+var chatMessage = require('../app/controllers/chatHistoryMessage');
+var friendRequest = require('../app/controllers/friendRequest');
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
@@ -15,9 +17,15 @@ router.post('/user/signin', user.userSignin);
 
 router.post('/user/update', user.updateUser);
 
-router.post('/user/addFriend', friend.addFriend);
+router.post('/user/addFriend', friendRequest.addFriendRequest);
+
+router.post('/friendRequest/agree', friendRequest.agreeFriendRequest)
+
+router.post('/chatMessage/delete', chatMessage.removeChatHistoryMessage);
 
 router.get('/user/getCode/:phoneNum', user.sendCode);
+
+router.get('/user/findOne/:id', friend.findOneFriend)
 
 router.get('/user/findUser/:phoneNum', user.findOneUser);
 

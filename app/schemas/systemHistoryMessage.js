@@ -1,18 +1,13 @@
 var mongoose = require("mongoose");
 var ObjectId = mongoose.Schema.Types.ObjectId;
 
-var FriendRequest = new mongoose.Schema({
-  name:String,
-  from: {
-    type: ObjectId,
-    ref: 'User',
-  },
+var SystemHistoryMessage = new mongoose.Schema({
   to: {
     type: ObjectId,
-    ref: 'User',
+    ref: 'User'
   },
-  // 0 未处理 1 已同意 2 已拒绝
-  status: Number,
+  content: String,
+  eventName: String,
   meta:{
     createAt:{
       type: Date,
@@ -25,7 +20,7 @@ var FriendRequest = new mongoose.Schema({
   }
 });
 
-FriendRequest.pre("save",function(next){
+SystemHistoryMessage.pre("save",function(next){
 
   if(this.isNew){
 
@@ -39,7 +34,7 @@ FriendRequest.pre("save",function(next){
   next();
 });
 
-FriendRequest.statics = {
+SystemHistoryMessage.statics = {
 
   fetch:function(cd){
 
@@ -50,8 +45,14 @@ FriendRequest.statics = {
   findById:function(id,cd){
     return this.findOne({_id:id})
       .exec(cd);
+  },
+  findByToUserId: function(id, cd){
+    return this.find({
+      to: id
+    }).sort("meta.createAt")
+      .exec(cd)
   }
 };
 
 
-module.exports = FriendRequest;
+module.exports = SystemHistoryMessage;

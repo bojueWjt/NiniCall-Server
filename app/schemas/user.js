@@ -23,6 +23,8 @@ var UserSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
+  local: String,
+  motto: String,
   meta:{
     createAt:{
       type: Date,
@@ -44,22 +46,7 @@ UserSchema.pre("save",function(next){
 
     this.meta.updateAt = Date.now();
   }
-
-  var user = this;
-
-  bcrypt.genSalt(SALT_WORK_FACTOR,function(err,salt){
-
-    if(err) return next(err);
-
-    bcrypt.hash(user.password,salt,function(err,hash){
-
-      if(err) return next(err);
-
-      user.password = hash;
-      next()
-    });
-
-  });
+  next();
 });
 
 UserSchema.statics = {
@@ -80,13 +67,14 @@ UserSchema.statics = {
 UserSchema.methods = {
 
   compare:function(password,cd){
-    console.log(password);
-    console.log(this.password);
-    bcrypt.compare(password,this.password,function(err,isMatch){
-      if(err) return cd(err);
+    var isMatch = false;
 
-      return cd(null,isMatch, this);
-    })
+    if (this.password === password) {
+
+      isMatch = true;
+    }
+
+    return cd(null, isMatch, this);
   }
 };
 

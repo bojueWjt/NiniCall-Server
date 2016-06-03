@@ -42,7 +42,7 @@ function addFriend(req, res) {
         currentUser.save(function(err, user) {
           if (err) {
             console.log(err);
-          } else {
+          } else { 
             res.send(JSON.stringify({
               code: 0,
               user: user,
@@ -64,4 +64,29 @@ function findAllFriend(req, res) {
   });
 }
 
+function findOneFriend(req, res) {
+  var id = req.params.id;
+
+  User.findById(id, function(err, friend) {
+
+    if (err) {
+      console.log(err);
+    }
+
+    if (!friend) {
+
+      res.send(err.notFindUser);
+      return;
+    }
+
+    var successInfo = {
+      code: 0,
+      friend: friend,
+    };
+
+    res.send(JSON.stringify(successInfo));
+  })
+}
+
 exports.addFriend = addFriend;
+exports.findOneFriend = findOneFriend;

@@ -9,7 +9,6 @@ function userSignup(req,res){
   var _user = req.body;
 
   console.log(req.body);
-  console.log(_user);
 
   Code.findOne({phoneNum: _user.phoneNum}, function(err, code) {
     if (err) {
@@ -58,11 +57,9 @@ function userSignup(req,res){
 function userSignin(req,res){
 
   var user = req.body;
-  console.log(user);
   User.findOne({phoneNum:user.phoneNum})
     .populate("friends", "username")
     .exec(function(err,mUser){
-    console.log("ninininiinni");
     if(err){
 
       console.log(err);
@@ -82,8 +79,6 @@ function userSignin(req,res){
         }
 
         if(isMatch){
-          console.log(mUser);
-
           res.send(JSON.stringify({
             code: 0,
             status: 'success',
