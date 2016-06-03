@@ -1,6 +1,4 @@
 var mongoose = require("mongoose");
-var bcrypt = require("bcrypt");
-var SALT_WORK_FACTOR = 10;
 var ObjectId = mongoose.Schema.Types.ObjectId;
 
 var UserSchema = new mongoose.Schema({
