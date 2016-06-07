@@ -20,8 +20,23 @@ function addSystemHistoryMessage(eventName, data, to) {
   });
 }
 
-function removeSystemHistoryMessage() {
+function removeSystemHistoryMessage(req, res) {
+  var params = req.body;
+  var id = params.id;
+  console.log(req.body);
+  SystemHistoryMessage.remove({_id: id}, function(err, chatMessages) {
 
+    if (err) {
+      console.log(err);
+    }
+
+    var successInfo = {
+      code: 0,
+      status: 'success',
+    };
+
+    res.send(JSON.stringify(successInfo));
+  });
 
 }
 
@@ -46,3 +61,4 @@ function findMessageByUserId(id, cb) {
 exports.findMessageByUserId = findMessageByUserId;
 exports.addSystemHistoryMessage = addSystemHistoryMessage;
 exports.findAll = findAll;
+exports.removeSystemHistoryMessage = removeSystemHistoryMessage;

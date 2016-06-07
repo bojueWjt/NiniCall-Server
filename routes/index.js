@@ -4,6 +4,7 @@ var router = express.Router();
 var user = require('../app/controllers/user');
 var friend = require('../app/controllers/friend');
 var chatMessage = require('../app/controllers/chatHistoryMessage');
+var systemHistoryMessage = require('../app/controllers/systemHistoryMessage');
 var friendRequest = require('../app/controllers/friendRequest');
 
 /* GET home page. */
@@ -24,6 +25,8 @@ router.post('/friendRequest/agree', friendRequest.agreeFriendRequest)
 router.post('/chatMessage/delete', chatMessage.removeChatHistoryMessage);
 
 router.get('/user/getCode/:phoneNum', user.sendCode);
+
+router.post('/historyMessage/delete', systemHistoryMessage.removeSystemHistoryMessage);
 
 router.get('/user/findOne/:id', friend.findOneFriend)
 

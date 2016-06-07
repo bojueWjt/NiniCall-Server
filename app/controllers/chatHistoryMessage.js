@@ -23,6 +23,7 @@ function addChatHistoryMessage(eventName, data, to) {
 function removeChatHistoryMessage(req, res) {
   var params = req.body;
   var id = params.id;
+  console.log(req.body);
   ChatHistoryMessage.remove({_id: id}, function(err, chatMessages) {
 
     if (err) {
@@ -32,7 +33,7 @@ function removeChatHistoryMessage(req, res) {
     var successInfo = {
       code: 0,
       status: 'success',
-    }
+    };
 
     res.send(JSON.stringify(successInfo));
   });

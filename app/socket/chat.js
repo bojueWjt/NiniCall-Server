@@ -1,4 +1,3 @@
-const connectUsers = [];
 const socketList = {};
 const chatHistoryMessage = require('../controllers/chatHistoryMessage') ;
 
@@ -19,23 +18,11 @@ function chatSocket(io) {
           for(var len = userMessages.length, i = 0; i < len ; i++) {
             const content =  JSON.parse(userMessages[i].content);
             content.isHistoryMessage = true;
-            content._id = userMessages._id;
+            content._id = userMessages[i]._id;
             socketList[userId].emit(userMessages[i].eventName, content, function(data) {
               console.log(data);
             });
           }
-        });
-
-        socketList[userId].emit('chat message', {
-          from: '574ff3eb2f5cab2582cb9e6c',
-          to: '574ff4932f5cab2582cb9e6e',
-          content: '今天天气不错',
-        });
-
-        socketList[userId].emit('chat message', {
-          from: '574ff3eb2f5cab2582cb9e6c',
-          to: '574ff4932f5cab2582cb9e6e',
-          content: '天气不错',
         });
       });
 
@@ -53,8 +40,6 @@ function chatSocket(io) {
           chatHistoryMessage.addChatHistoryMessage('chat message', data, to);
         }
       });
-
-
 
       socket.on('disconnect', function() {
         if (socketList[userId]) {

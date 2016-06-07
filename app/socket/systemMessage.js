@@ -29,6 +29,8 @@ function systemMessage(io) {
       findMessageByUserId(userId, function(userMessages) {
         for(var len = userMessages.length, i = 0; i < len ; i++) {
           var content = JSON.parse(userMessages[i].content);
+          content.isHistoryMessage = true;
+          content._id = userMessages[i]._id;
           socketList[userId].emit(userMessages[i].eventName, content);
         }
       });
@@ -38,8 +40,7 @@ function systemMessage(io) {
     socket.on('disconnect', function() {
       console.log('call from disconnect' + userId);
       if (socketList[userId]) {
-        delete socketList[userId];
-        console.log('delete socket');
+         console.log('delete socket');
       }
     });
 
@@ -50,7 +51,7 @@ function systemMessage(io) {
       var from = data.from;
       var username = data.username;
 
-      if (socketList[userId]) {
+      if (socketList[to]) {
         socketList[to].emit('new friend request', {
           from: from,
           username: username,
